@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketPlace - Sistema de Exposição de Produtos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --text: #333;
+            --text-light: #6c757d;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: var(--text);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+        .navbar {
+            background: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .nav-links a:hover { color: var(--primary); }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--secondary); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--warning); color: white; }
+        .btn-light {
+            background: #f1f1f1;
+            color: var(--text);
+            border: 1px solid #eee;
+        }
+        .btn-light:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+        .hero {
+            background: linear-gradient(rgba(67, 97, 238, 0.9), rgba(58, 12, 163, 0.9)), url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 12px;
+        }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; max-width: 700px; margin: 0 auto 30px; }
+        .categories {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        .category {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        .category:hover, .category.active { background: var(--primary); color: white; }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .product-info { padding: 20px; }
+        .product-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        .product-description {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        .product-price {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .product-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .admin-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 50px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .admin-tab {
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #f8f9fa;
+            transition: var(--transition);
+        }
+        .admin-tab.active { background: var(--primary); color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .message-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .message-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0;
+            margin-top: 50px;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+        .footer-section a:hover { color: white; }
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid #444;
+        }
+        /* Modal styles */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-bg.active { display: flex; }
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            max-width: 400px;
+            width: 95%;
+            padding: 30px 20px 20px 20px;
+            position: relative;
+            animation: fadeIn .2s;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .modal img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            object-fit: cover;
+            max-height: 200px;
+        }
+        .modal .product-status { margin-bottom: 10px; }
+        .comment-section {
+            margin-top: 10px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .comment-list {
+            margin-bottom: 10px;
+        }
+        .comment-list p {
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+        .comment-form {
+            display: flex;
+            gap: 8px;
+        }
+        .comment-form input {
+            flex: 1;
+            padding: 7px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        .comment-form button {
+            padding: 7px 15px;
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            cursor: pointer;
+        }
+        .like-count {
+            font-size: 0.95em;
+            margin-left: 5px;
+            color: var(--primary);
+        }
+        @media (max-width: 768px) {
+            .nav-container { flex-direction: column; gap: 15px; }
+            .nav-links { gap: 15px; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1rem; }
+            .products-grid { grid-template-columns: 1fr; }
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            .modal { max-width: 95vw; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <a href="#" class="logo">
+                    <i class="fas fa-store"></i> MarketPlace
+                </a>
+                <div class="nav-links">
+                    <a href="#products">Produtos</a>
+                    <a href="#admin">Administração</a>
+                    <a href="#messages">Mensagens</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <!-- Seção Hero -->
+        <section class="hero">
+            <h1>Plataforma de Exposição de Produtos</h1>
+            <p>Conectamos empresas e clientes em um marketplace confiável e organizado por categorias</p>
+            <button class="btn btn-primary">Saiba Mais</button>
+        </section>
+
+        <!-- Categorias -->
+        <div class="categories" id="category-list">
+            <!-- Categorias serão renderizadas via JS -->
+        </div>
+
+        <!-- Produtos -->
+        <section id="products">
+            <h2>Produtos em Destaque</h2>
+            <div class="products-grid" id="products-grid">
+                <!-- Produtos renderizados via JS -->
+            </div>
+        </section>
+
+        <!-- Painel Administrativo -->
+        <section id="admin" class="admin-panel">
+            <div class="admin-header">
+                <h2>Painel Administrativo</h2>
+                <button class="btn btn-primary" id="add-product-btn">Adicionar Produto</button>
+            </div>
+            <div class="admin-tabs">
+                <div class="admin-tab active" data-tab="pending">Aprovações Pendentes</div>
+                <div class="admin-tab" data-tab="approved">Produtos Aprovados</div>
+                <div class="admin-tab" data-tab="rejected">Produtos Rejeitados</div>
+            </div>
+            <div id="pending" class="tab-content active">
+                <h3>Produtos Aguardando Aprovação (<span id="pending-count"></span>)</h3>
+                <div id="pending-list"></div>
+            </div>
+            <div id="approved" class="tab-content">
+                <h3>Produtos Aprovados (<span id="approved-count"></span>)</h3>
+                <div id="approved-list"></div>
+            </div>
+            <div id="rejected" class="tab-content">
+                <h3>Produtos Rejeitados (<span id="rejected-count"></span>)</h3>
+                <div id="rejected-list"></div>
+            </div>
+        </section>
+
+        <!-- Mini Rede Social: Desejos de Aquisição -->
+        <section id="social-wishlist" class="admin-panel">
+            <h2>Mini Rede Social - Desejos de Aquisição</h2>
+            <form id="wishlist-form" style="margin-bottom: 30px;">
+                <div class="form-group">
+                    <label for="user">Seu nome</label>
+                    <input type="text" id="user" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="wish">Produto ou serviço que deseja adquirir</label>
+                    <input type="text" id="wish" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Publicar Desejo</button>
+            </form>
+            <div id="wishlist-feed">
+                <!-- Lista de desejos será exibida aqui -->
+            </div>
+        </section>
+
+        <!-- Sistema de Mensagens -->
+        <section id="messages" class="admin-panel">
+            <h2>Mensagens Recebidas</h2>
+            <div id="messages-list">
+                <!-- Mensagens renderizadas via JS -->
+            </div>
+            <h3>Enviar Mensagem</h3>
+            <form id="contact-form">
+                <div class="form-group">
+                    <label for="name">Nome</label>
+                    <input type="text" id="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Assunto</label>
+                    <input type="text" id="subject" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar Mensagem</button>
+            </form>
+        </section>
+    </div>
+
+    <!-- Modal de Detalhes do Produto -->
+    <div class="modal-bg" id="product-modal-bg">
+        <div class="modal" id="product-modal">
+            <button class="modal-close" id="modal-close-btn" title="Fechar">&times;</button>
+            <!-- Conteúdo preenchido via JS -->
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Produto (Admin) -->
+    <div class="modal-bg" id="add-product-modal-bg"></div>
+        <div class="modal" id="add-product-modal">
+            <button class="modal-close" id="add-product-close-btn" title="Fechar">&times;</button>
+            <h3>Adicionar Produto</h3>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="prod-title">Título</label>
+                    <input type="text" id="prod-title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="prod-desc">Descrição</label>
+                    <input type="text" id="prod-desc" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="prod-price">Preço (MZN)</label>
+                    <input type="number" id="prod-price" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="prod-category">Categoria</label>
+                    <select id="prod-category" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="prod-img">URL da Imagem</label>
+                    <input type="url" id="prod-img" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="prod-seller">Nome do Vendedor</label>
+                    <input type="text" id="prod-seller" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="prod-seller-img">URL da Foto do Vendedor</label>
+                    <input type="url" id="prod-seller-img" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>MarketPlace</h3>
+                    <p>Conectando empresas e clientes desde 2023</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Categorias</h3>
+                    <a href="#">Vestuário</a>
+                    <a href="#">Imobiliário</a>
+                    <a href="#">Automóveis</a>
+                    <a href="#">Eletrônicos</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <a href="#"><i class="fas fa-envelope"></i> contato@marketplace.com</a>
+                    <a href="#"><i class="fas fa-phone"></i> +258 83 3868 152</a>
+                    <a href="#"><i class="fas fa-map-marker-alt"></i> Maputo, Moçambique</a>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 MarketPlace - Todos os direitos reservados
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // =========================
+    // Dados Iniciais
+    // =========================
+    // Categorias
+    const categories = [
+        { id: 'vestuario', name: 'Vestuário', icon: 'fa-tshirt' },
+        { id: 'imobiliario', name: 'Imobiliário', icon: 'fa-home' },
+        { id: 'automoveis', name: 'Automóveis', icon: 'fa-car' },
+        { id: 'pecas', name: 'Peças Automotivas', icon: 'fa-cogs' },
+        { id: 'eletronicos', name: 'Eletrônicos', icon: 'fa-laptop' },
+        { id: 'cosmeticos', name: 'Cosméticos', icon: 'fa-palette' },
+        { id: 'servicos', name: 'Serviços Gerais', icon: 'fa-tools' },
+        { id: 'saude', name: 'Saúde & Bem-estar', icon: 'fa-user-md' },
+        { id: 'educacao', name: 'Educação', icon: 'fa-graduation-cap' },
+        { id: 'alimentacao', name: 'Alimentação', icon: 'fa-utensils' },
+        { id: 'consultoria', name: 'Consultoria', icon: 'fa-briefcase' },
+        { id: 'limpeza', name: 'Limpeza', icon: 'fa-broom' },
+        { id: 'transporte', name: 'Transporte', icon: 'fa-truck' }
+    ];
+
+    // Produtos iniciais
+    let products = [
+        {
+            id: 1,
+            title: "Camiseta Premium",
+            description: "Camiseta de algodão egípcio, comforto e estilo para o dia a dia.",
+            price: 350,
+            category: "vestuario",
+            image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+            seller: "João Revendedor",
+            sellerImg: "https://randomuser.me/api/portraits/men/32.jpg",
+            status: "approved",
+            statusDate: "15/08/2023 14:32",
+            rejectionReason: "",
+            likes: 0,
+            liked: false,
+            comments: []
+        },
+        {
+            id: 2,
+            title: "Casa Moderna",
+            description: "Casa com 3 quartos, acabamentos de luxo e localização privilegiada.",
+            price: 2500000,
+            category: "imobiliario",
+            image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+            seller: "Maria Imóveis",
+            sellerImg: "https://randomuser.me/api/portraits/women/44.jpg",
+            status: "pending",
+            statusDate: "",
+            rejectionReason: "",
+            likes: 0,
+            liked: false,
+            comments: []
+        },
+        {
+            id: 3,
+            title: "Carro Esportivo",
+            description: "Veículo esportivo, baixo kilometragem, único dono e bem conservado.",
+            price: 850000,
+            category: "automoveis",
+            image: "https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+            seller: "Carlos Autos",
+            sellerImg: "https://randomuser.me/api/portraits/men/45.jpg",
+            status: "approved",
+            statusDate: "14/08/2023 10:15",
+            rejectionReason: "",
+            likes: 0,
+            liked: false,
+            comments: []
+        },
+        {
+            id: 4,
+            title: "Perfume Importado",
+            description: "Perfume francês, fragrância exclusiva e embalagem premium.",
+            price: 1200,
+            category: "cosmeticos",
+            image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+            seller: "Ana Cosméticos",
+            sellerImg: "https://randomuser.me/api/portraits/women/55.jpg",
+            status: "rejected",
+            statusDate: "13/08/2023 16:45",
+            rejectionReason: "Informações insuficientes sobre o produto",
+            likes: 0,
+            liked: false,
+            comments: []
+        },
+        {
+            id: 5,
+            title: "Smartphone Premium",
+            description: "Último modelo com 256GB de armazenamento e câmera de alta resolução.",
+            price: 15000,
+            category: "eletronicos",
+            image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+            seller: "Pedro Eletrônicos",
+            sellerImg: "https://randomuser.me/api/portraits/men/50.jpg",
+            status: "pending",
+            statusDate: "",
+            rejectionReason: "",
+            likes: 0,
+            liked: false,
+            comments: []
+        }
+    ];
+
+    // Mensagens iniciais
+    let messages = [
+        {
+            name: "João Silva",
+            email: "joao@email.com",
+            subject: "Proposta para parceria comercial",
+            message: "Olá, gostaria de propor uma parceria para expor meus produtos em sua plataforma. Como posso proceder?",
+            date: "12/08/2023 09:23"
+        },
+        {
+            name: "Maria Santos",
+            email: "maria@email.com",
+            subject: "Dúvida sobre taxas",
+            message: "Boa tarde, gostaria de saber mais informações sobre as taxas cobradas para expor produtos em sua plataforma.",
+            date: "11/08/2023 14:45"
+        }
+    ];
+
+    // Lista de desejos
+    let wishes = [];
+
+    // Categoria selecionada para filtro
+    let selectedCategory = "all";
+
+    // =========================
+    // Funções de Renderização
+    // =========================
+
+    // Renderiza categorias
+    function renderCategories() {
+        const catList = document.getElementById('category-list');
+        catList.innerHTML = `<div class="category${selectedCategory === 'all' ? ' active' : ''}" data-category="all"><i class="fas fa-th-large"></i> Todos</div>` +
+            categories.map(cat =>
+                `<div class="category${selectedCategory === cat.id ? ' active' : ''}" data-category="${cat.id}">
+                    <i class="fas ${cat.icon}"></i> ${cat.name}
+                </div>`
+            ).join('');
+    }
+
+    // Renderiza produtos na grid principal
+    function renderProducts() {
+        const grid = document.getElementById('products-grid');
+        let filtered = selectedCategory === "all"
+            ? products.filter(p => p.status === "approved")
+            : products.filter(p => p.status === "approved" && p.category === selectedCategory);
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;">Nenhum produto encontrado.</p>`;
+            return;
+        }
+        grid.innerHTML = filtered.map(prod => productCardHTML(prod, true)).join('');
+    }
+
+    // Gera HTML de uma carta de produto
+    function productCardHTML(prod, showActions = false) {
+        // Status badge
+        let statusClass = prod.status === "pending" ? "status-pending" :
+                          prod.status === "approved" ? "status-approved" : "status-rejected";
+        let statusText = prod.status === "pending" ? "Aguardando Aprovação" :
+                         prod.status === "approved" ? "Aprovado" : "Rejeitado";
+        // Like icon
+        let likeClass = prod.liked ? "fa-heart" : "fa-heart";
+        let likeColor = prod.liked ? "color:#f72585;" : "";
+        // Comentários
+        let commentsHTML = "";
+        if (prod.comments && prod.comments.length > 0) {
+            commentsHTML = `<div class="comment-list">` +
+                prod.comments.map(c => `<p><strong>${c.user}:</strong> ${c.text}</p>`).join('') +
+                `</div>`;
+        }
+        // Campo de comentário (aparece se showActions)
+        let commentSection = showActions ? `
+            <div class="comment-section" style="display:none"></div>
+        ` : "";
+
+        return `
+        <div class="product-card" data-id="${prod.id}">
+            <img src="${prod.image}" alt="${prod.title}" class="product-image">
+            <div class="product-info">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <img src="${prod.sellerImg}" alt="${prod.seller}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                    <span style="font-weight:600;">${prod.seller}</span>
+                </div>
+                <h3 class="product-title">${prod.title}</h3>
+                <p class="product-description">${prod.description}</p>
+                <div class="product-price">MZN ${prod.price.toLocaleString('pt-MZ')}</div>
+                <span class="product-status ${statusClass}">${statusText}</span>
+                <div style="display:flex;gap:10px;margin-bottom:10px;">
+                    <button class="btn btn-light btn-like" title="Curtir">
+                        <i class="fas fa-heart" style="${likeColor}"></i>
+                        <span class="like-count">${prod.likes}</span>
+                    </button>
+                    <button class="btn btn-light btn-comment" title="Comentar"><i class="fas fa-comment"></i></button>
+                    <button class="btn btn-light btn-share" title="Compartilhar"><i class="fas fa-share"></i></button>
+                </div>
+                <button class="btn btn-primary btn-details">Ver Detalhes</button>
+                ${commentSection}
+            </div>
+        </div>
+        `;
+    }
+
+    // Renderiza produtos no painel admin
+    function renderAdminProducts() {
+        // Pendentes
+        let pendings = products.filter(p => p.status === "pending");
+        let pendingList = document.getElementById('pending-list');
+        document.getElementById('pending-count').textContent = pendings.length;
+        pendingList.innerHTML = pendings.length === 0 ? `<p>Nenhum produto pendente.</p>` :
+            pendings.map(prod => `
+                <div class="product-card" data-id="${prod.id}">
+                    <div class="product-info">
+                        <h3 class="product-title">${prod.title}</h3>
+                        <p class="product-description">${prod.description}</p>
+                        <div class="product-price">MZN ${prod.price.toLocaleString('pt-MZ')}</div>
+                        <div class="message-actions">
+                            <button class="btn btn-success btn-approve">Aprovar</button>
+                            <button class="btn btn-danger btn-reject">Rejeitar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+        // Aprovados
+        let approveds = products.filter(p => p.status === "approved");
+        let approvedList = document.getElementById('approved-list');
+        document.getElementById('approved-count').textContent = approveds.length;
+        approvedList.innerHTML = approveds.length === 0 ? `<p>Nenhum produto aprovado.</p>` :
+            approveds.map(prod => `
+                <div class="product-card" data-id="${prod.id}">
+                    <div class="product-info">
+                        <h3 class="product-title">${prod.title}</h3>
+                        <p class="product-description">${prod.description}</p>
+                        <div class="product-price">MZN ${prod.price.toLocaleString('pt-MZ')}</div>
+                        <p><strong>Aprovado em:</strong> ${prod.statusDate || "--"}</p>
+                    </div>
+                </div>
+            `).join('');
+
+        // Rejeitados
+        let rejecteds = products.filter(p => p.status === "rejected");
+        let rejectedList = document.getElementById('rejected-list');
+        document.getElementById('rejected-count').textContent = rejecteds.length;
+        rejectedList.innerHTML = rejecteds.length === 0 ? `<p>Nenhum produto rejeitado.</p>` :
+            rejecteds.map(prod => `
+                <div class="product-card" data-id="${prod.id}">
+                    <div class="product-info">
+                        <h3 class="product-title">${prod.title}</h3>
+                        <p class="product-description">${prod.description}</p>
+                        <div class="product-price">MZN ${prod.price.toLocaleString('pt-MZ')}</div>
+                        <p><strong>Motivo da rejeição:</strong> ${prod.rejectionReason || "--"}</p>
+                        <p><strong>Rejeitado em:</strong> ${prod.statusDate || "--"}</p>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    // Renderiza lista de desejos
+    function renderWishes() {
+        const wishlistFeed = document.getElementById('wishlist-feed');
+        wishlistFeed.innerHTML = wishes.length === 0 ? '<p>Nenhum desejo publicado ainda.</p>' : wishes.map(w => `
+            <div class="message-item">
+                <div class="message-header">
+                    <h3>${w.user}</h3>
+                    <span>${w.date}</span>
+                </div>
+                <p><strong>Deseja adquirir:</strong> ${w.wish}</p>
+            </div>
+        `).join('');
+    }
+
+    // Renderiza mensagens recebidas
+    function renderMessages() {
+        const msgList = document.getElementById('messages-list');
+        msgList.innerHTML = messages.length === 0 ? '<p>Nenhuma mensagem recebida ainda.</p>' : messages.map(m => `
+            <div class="message-item">
+                <div class="message-header">
+                    <h3>${m.name}</h3>
+                    <span>${m.date}</span>
+                </div>
+                <p><strong>Assunto:</strong> ${m.subject}</p>
+                <p>${m.message}</p>
+            </div>
+        `).join('');
+    }
+
+    // =========================
+    // Modal de Detalhes do Produto
+    // =========================
+    function openProductModal(prodId) {
+        const prod = products.find(p => p.id == prodId);
+        if (!prod) return;
+        const modal = document.getElementById('product-modal');
+        let statusClass = prod.status === "pending" ? "status-pending" :
+                          prod.status === "approved" ? "status-approved" : "status-rejected";
+        let statusText = prod.status === "pending" ? "Aguardando Aprovação" :
+                         prod.status === "approved" ? "Aprovado" : "Rejeitado";
+        modal.innerHTML = `
+            <button class="modal-close" id="modal-close-btn" title="Fechar">&times;</button>
+            <img src="${prod.image}" alt="${prod.title}">
+            <h2 style="margin-bottom:10px;">${prod.title}</h2>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <img src="${prod.sellerImg}" alt="${prod.seller}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+                <span style="font-weight:600;">${prod.seller}</span>
+            </div>
+            <p class="product-description">${prod.description}</p>
+            <div class="product-price">MZN ${prod.price.toLocaleString('pt-MZ')}</div>
+            <span class="product-status ${statusClass}">${statusText}</span>
+            ${prod.status === "rejected" ? `<p style="margin-top:10px;"><strong>Motivo da rejeição:</strong> ${prod.rejectionReason}</p>` : ""}
+            ${prod.statusDate ? `<p style="margin-top:10px;"><strong>Data:</strong> ${prod.statusDate}</p>` : ""}
+        `;
+        document.getElementById('product-modal-bg').classList.add('active');
+        // Botão fechar
+        document.getElementById('modal-close-btn').onclick = () => {
+            document.getElementById('product-modal-bg').classList.remove('active');
+        };
+    }
+
+    // =========================
+    // Modal de Adicionar Produto (Admin)
+    // =========================
+    function openAddProductModal() {
+        // Preenche select de categorias
+        const select = document.getElementById('prod-category');
+        select.innerHTML = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+        document.getElementById('add-product-modal-bg').classList.add('active');
+    }
+    function closeAddProductModal() {
+        document.getElementById('add-product-modal-bg').classList.remove('active');
+        document.getElementById('add-product-form').reset();
+    }
+
+    // =========================
+    // Eventos e Interatividade
+    // =========================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Render inicial
+        renderCategories();
+        renderProducts();
+        renderAdminProducts();
+        renderWishes();
+        renderMessages();
+
+        // Categorias filtráveis
+        document.getElementById('category-list').addEventListener('click', function(e) {
+            const cat = e.target.closest('.category');
+            if (!cat) return;
+            selectedCategory = cat.getAttribute('data-category');
+            renderCategories();
+            renderProducts();
+        });
+
+        // Produtos: ações (delegação de eventos)
+        document.getElementById('products-grid').addEventListener('click', function(e) {
+            const card = e.target.closest('.product-card');
+            if (!card) return;
+            const prodId = card.getAttribute('data-id');
+            // Ver Detalhes
+            if (e.target.closest('.btn-details')) {
+                openProductModal(prodId);
+            }
+            // Curtir
+            if (e.target.closest('.btn-like')) {
+                const prod = products.find(p => p.id == prodId);
+                if (!prod) return;
+                prod.liked = !prod.liked;
+                prod.likes += prod.liked ? 1 : -1;
+                renderProducts();
+            }
+            // Comentar
+            if (e.target.closest('.btn-comment')) {
+                let section = card.querySelector('.comment-section');
+                if (!section) return;
+                if (section.style.display === "block") {
+                    section.style.display = "none";
+                    section.innerHTML = "";
+                } else {
+                    section.style.display = "block";
+                    // Renderiza comentários existentes e campo de comentário
+                    let prod = products.find(p => p.id == prodId);
+                    let commentsHTML = "";
+                    if (prod.comments && prod.comments.length > 0) {
+                        commentsHTML = `<div class="comment-list">` +
+                            prod.comments.map(c => `<p><strong>${c.user}:</strong> ${c.text}</p>`).join('') +
+                            `</div>`;
+                    }
+                    section.innerHTML = `
+                        ${commentsHTML}
+                        <form class="comment-form">
+                            <input type="text" placeholder="Seu nome" required style="max-width:100px;">
+                            <input type="text" placeholder="Seu comentário" required>
+                            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    `;
+                    // Evento de envio de comentário
+                    section.querySelector('.comment-form').onsubmit = function(ev) {
+                        ev.preventDefault();
+                        let user = this.querySelector('input[type="text"]').value.trim();
+                        let text = this.querySelectorAll('input[type="text"]')[1].value.trim();
+                        if (user && text) {
+                            prod.comments.push({ user, text });
+                            renderProducts();
+                        }
+                    };
+                }
+            }
+            // Compartilhar
+            if (e.target.closest('.btn-share')) {
+                alert("Link do produto copiado para a área de transferência (simulado)!");
+            }
+        });
+
+        // Modal de detalhes: fechar ao clicar fora
+        document.getElementById('product-modal-bg').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+
+        // Painel Admin: abas
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Painel Admin: aprovar/rejeitar produtos
+        document.getElementById('pending-list').addEventListener('click', function(e) {
+            const card = e.target.closest('.product-card');
+            if (!card) return;
+            const prodId = card.getAttribute('data-id');
+            let prod = products.find(p => p.id == prodId);
+            // Aprovar
+            if (e.target.closest('.btn-approve')) {
+                prod.status = "approved";
+                prod.statusDate = new Date().toLocaleString('pt-BR');
+                renderAdminProducts();
+                renderProducts();
+            }
+            // Rejeitar
+            if (e.target.closest('.btn-reject')) {
+                let reason = prompt("Digite o motivo da rejeição:");
+                if (reason) {
+                    prod.status = "rejected";
+                    prod.statusDate = new Date().toLocaleString('pt-BR');
+                    prod.rejectionReason = reason;
+                    renderAdminProducts();
+                    renderProducts();
+                }
+            }
+        });
+
+        // Modal de adicionar produto (admin)
+        document.getElementById('add-product-btn').onclick = openAddProductModal;
+        document.getElementById('add-product-close-btn').onclick = closeAddProductModal;
+        document.getElementById('add-product-modal-bg').onclick = function(e) {
+            if (e.target === this) closeAddProductModal();
+        };
+        document.getElementById('add-product-form').onsubmit = function(e) {
+            e.preventDefault();
+            // Coleta dados
+            let newProd = {
+                id: Date.now(),
+                title: document.getElementById('prod-title').value,
+                description: document.getElementById('prod-desc').value,
+                price: parseFloat(document.getElementById('prod-price').value),
+                category: document.getElementById('prod-category').value,
+                image: document.getElementById('prod-img').value,
+                seller: document.getElementById('prod-seller').value,
+                sellerImg: document.getElementById('prod-seller-img').value,
+                status: "pending",
+                statusDate: "",
+                rejectionReason: "",
+                likes: 0,
+                liked: false,
+                comments: []
+            };
+            products.unshift(newProd);
+            closeAddProductModal();
+            renderAdminProducts();
+            renderProducts();
+        };
+
+        // Mini Rede Social - Lista de desejos
+        const wishlistForm = document.getElementById('wishlist-form');
+        if (wishlistForm) {
+            wishlistForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const user = document.getElementById('user').value.trim();
+                const wish = document.getElementById('wish').value.trim();
+                if (user && wish) {
+                    wishes.unshift({ user, wish, date: new Date().toLocaleString('pt-BR') });
+                    renderWishes();
+                    wishlistForm.reset();
+                }
+            });
+        }
+
+        // Formulário de mensagens
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const subject = document.getElementById('subject').value.trim();
+                const message = document.getElementById('message').value.trim();
+                if (name && email && subject && message) {
+                    messages.unshift({
+                        name, email, subject, message,
+                        date: new Date().toLocaleString('pt-BR')
+                    });
+                    renderMessages();
+                    contactForm.reset();
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>
